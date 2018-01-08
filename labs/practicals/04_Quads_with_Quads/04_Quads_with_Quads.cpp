@@ -12,7 +12,7 @@ target_camera cam;
 bool load_content() {
   // *********************************
   // Set geometry type to quads
-
+	geom.set_type(GL_QUADS);
   // *********************************
   // Create quad data
   // Positions
@@ -28,7 +28,7 @@ bool load_content() {
   // Add to the geometry
   geom.add_buffer(positions, BUFFER_INDEXES::POSITION_BUFFER);
   geom.add_buffer(colours, BUFFER_INDEXES::COLOUR_BUFFER);
-  geom.set_type(GL_QUADS);
+  
   // Load in shaders
   eff.add_shader("shaders/basic.vert", // filename
                  GL_VERTEX_SHADER);    // type

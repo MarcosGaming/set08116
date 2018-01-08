@@ -12,7 +12,7 @@ target_camera cam;
 bool load_content() {
   // *********************************
   // Set geometry type to lines
-
+	geom.set_type(GL_LINES);
   // *********************************
   // Positions
   vector<vec3> positions{
@@ -31,7 +31,7 @@ bool load_content() {
   // Add to the geometry
   geom.add_buffer(positions, BUFFER_INDEXES::POSITION_BUFFER);
   geom.add_buffer(colours, BUFFER_INDEXES::COLOUR_BUFFER);
-  geom.set_type(GL_LINES);
+  
   // Load in shaders
   eff.add_shader("shaders/basic.vert", GL_VERTEX_SHADER);
   eff.add_shader("shaders/basic.frag", GL_FRAGMENT_SHADER);
