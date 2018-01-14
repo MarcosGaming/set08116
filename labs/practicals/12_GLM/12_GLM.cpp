@@ -50,7 +50,7 @@ int main()
 	vec4 nwi = normalize(wi);
 	//Exercise 7 (Dot Product)
 	float d1 = dot(zx, xz);
-	float d2 = dot(ko, ok);
+	float d23 = dot(ko, ok);
 	float d3 = dot(iw, wi);
 	//Exercise 8 (Vector Projection)
 	vec2 pzx = proj(zx, xz);
