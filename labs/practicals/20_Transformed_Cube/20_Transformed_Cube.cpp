@@ -20,23 +20,23 @@ bool load_content() {
       // *********************************
       // Add the position data for triangles here, (6 verts per side)
       // Front
-
-
-      // Back
-
-
-      // Right
-
-
-      // Left
-
-
-      // Top
-
-
-      // Bottom
-
-
+	  vec3(1.0f,1.0f,1.0f),vec3(0.0f,0.0f,1.0f),vec3(1.0f,0.0f,1.0f),
+	  vec3(0.0f,0.0f,1.0f),vec3(1.0f,1.0f,1.0f),vec3(0.0f,1.0f,1.0f),
+	  // Back
+	  vec3(1.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(0.0f,1.0f,0.0f),
+	  vec3(1.0f,1.0f,0.0f),vec3(1.0f,0.0f,0.0f),vec3(0.0f,1.0f,0.0f),
+	  // Right
+	  vec3(0.0f,0.0f,0.0f),vec3(0.0f,1.0f,1.0f),vec3(0.0f,1.0f,0.0f),
+	  vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,1.0f),vec3(0.0f,1.0f,1.0f),
+	  // Left
+	  vec3(1.0f,0.0f,0.0f),vec3(1.0f,1.0f,0.0f),vec3(1.0f,1.0f,1.0f),
+	  vec3(1.0f,0.0f,0.0f),vec3(1.0f,1.0f,1.0f),vec3(1.0f,0.0f,1.0f),
+	  // Top
+	  vec3(0.0f,1.0f,0.0f),vec3(0.0f,1.0f,1.0f),vec3(1.0f,1.0f,1.0f),
+	  vec3(0.0f,1.0f,0.0f),vec3(1.0f,1.0f,1.0f),vec3(1.0f,1.0f,0.0f),
+	  // Bottom
+	  vec3(0.0f,0.0f,0.0f),vec3(1.0f,0.0f,0.0f),vec3(1.0f,0.0f,1.0f),
+	  vec3(0.0f,0.0f,0.0f),vec3(1.0f,0.0f,1.0f),vec3(0.0f,0.0f,1.0f)
       // *********************************
   };
   // Colours
@@ -66,38 +66,48 @@ bool update(float delta_time) {
   // *********************************
   // Use keys to update transform values
   // WSAD - movement
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_W))
+	{
+		pos += vec3(0.0f, 0.0f, 5.0f)*delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_S))
+	{
+		pos += vec3(0.0f, 0.0f, -0.5f)*delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_A))
+	{
+		pos += vec3(5.0f, 0.0f, 0.0f)*delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_D))
+	{
+		pos += vec3(-5.0f, 0.0f, 0.0f);
+	}
   // Arrow Keys - rotation
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_UP))
+	{
+		theta += pi<float>()*delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_DOWN))
+	{
+		theta -= pi<float>()*delta_time;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_LEFT))
+	{
+		rho += pi<float>()*delta_time/2;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_RIGHT))
+	{
+		rho -= pi<float>()*delta_time/2;
+	}
   // O decrease scale, P increase scale
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_O))
+	{
+		s *=0.5f;
+	}
+	if (glfwGetKey(renderer::get_window(), GLFW_KEY_P))
+	{
+		s/= 0.5f;
+	}
   // *********************************
   // Update the camera
   cam.update(delta_time);
@@ -107,13 +117,14 @@ bool update(float delta_time) {
 bool render() {
   // Bind effect
   renderer::bind(eff);
-  mat4 T, R, S, M;
+  mat4 T, R1, R2, S, M;
   // *********************************
   // Create transformation matrix
-
-
-
-
+  T = translate(mat4(1.0f), pos);
+  R1 = rotate(mat4(1.0f), theta, vec3(1.0f, 1.0f, 1.0f));
+  R2 = rotate(mat4(1.0f), rho, vec3(1.0f, 1.0f, 1.0f));
+  S = scale(mat4(1.0f), vec3(s, s, s));
+  M = T*((R1*R2)*S);
   // *********************************
   // Create MVP matrix
   auto V = cam.get_view();
