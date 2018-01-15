@@ -18,7 +18,7 @@ bool load_content() {
   vector<vec3> positions{
       // *********************************
       // Add the position data for our triangle fan here
-	  vec3(-1.0f,1.0f,0.0f),vec3(-1.0f,-1.0f,0.0f),vec3(1.0f,-1.0f,0.0f),vec3(1.0f,1.0f,0.0f) //Ask this on monday
+	  vec3(-1.0f,1.0f,0.0f),vec3(-1.0f,-1.0f,0.0f),vec3(1.0f,-1.0f,0.0f),vec3(1.0f,1.0f,0.0f)
       // *********************************
   };
   // Colours

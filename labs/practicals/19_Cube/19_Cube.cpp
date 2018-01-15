@@ -18,23 +18,23 @@ bool load_content() {
       // *********************************
       // Add the position data for triangles here, (6 verts per side)
       // Front
-
-
+	  vec3(1.0f,1.0f,1.0f),vec3(0.0f,0.0f,1.0f),vec3(1.0f,0.0f,1.0f),
+	  vec3(0.0f,0.0f,1.0f),vec3(1.0f,1.0f,1.0f),vec3(0.0f,1.0f,1.0f),
       // Back
-
-
+	  vec3(1.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(0.0f,1.0f,0.0f),
+	  vec3(1.0f,1.0f,0.0f),vec3(1.0f,0.0f,0.0f),vec3(0.0f,1.0f,0.0f),
       // Right
-
-
+	  vec3(0.0f,0.0f,0.0f),vec3(0.0f,1.0f,1.0f),vec3(0.0f,1.0f,0.0f),
+	  vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,1.0f),vec3(0.0f,1.0f,1.0f),
       // Left
-
-
+	  vec3(1.0f,0.0f,0.0f),vec3(1.0f,1.0f,0.0f),vec3(1.0f,1.0f,1.0f),
+	  vec3(1.0f,0.0f,0.0f),vec3(1.0f,1.0f,1.0f),vec3(1.0f,0.0f,1.0f),
       // Top
-
-
+	  vec3(0.0f,1.0f,0.0f),vec3(0.0f,1.0f,1.0f),vec3(1.0f,1.0f,1.0f),
+	  vec3(0.0f,1.0f,0.0f),vec3(1.0f,1.0f,1.0f),vec3(1.0f,1.0f,0.0f),
       // Bottom
-
-
+	  vec3(0.0f,0.0f,0.0f),vec3(1.0f,0.0f,0.0f),vec3(1.0f,0.0f,1.0f),
+	  vec3(0.0f,0.0f,0.0f),vec3(1.0f,0.0f,1.0f),vec3(0.0f,0.0f,1.0f)
       // *********************************
   };
   // Colours
@@ -88,6 +88,8 @@ bool render() {
   auto MVP = P * V * M;
   // Set MVP matrix uniform
   glUniformMatrix4fv(eff.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_CULL_FACE);
   // Render geometry
   renderer::render(geom);
   return true;
