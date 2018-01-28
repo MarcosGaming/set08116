@@ -27,7 +27,7 @@ bool load_content() {
   eff.add_shader("26_Shaders/colour.frag", GL_FRAGMENT_SHADER);
   // *********************************
   // Build effect
-
+  eff.build();
   // *********************************
 
   // Set camera properties
@@ -60,7 +60,8 @@ bool render() {
                      value_ptr(MVP));                 // Pointer to matrix data
   // *********************************
   // Set the colour value for the shader here (Hint: rep the Brand, use the NapierRed macro)
-
+  vector<vec4> colours{ vec4(NapierRed,1.0f),vec4(0.0f,1.0f,0.0f,1.0f) };
+  glUniform4fv(eff.get_uniform_location("colour"), 2, value_ptr(colours)); //Ask this in class
   // *********************************
 
   // Render the mesh
