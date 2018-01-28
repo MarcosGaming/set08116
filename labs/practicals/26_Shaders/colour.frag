@@ -11,6 +11,9 @@ layout(location = 0) out vec4 out_colour;
 void main() {
   // *********************************
   // Set outgoing colour
-  out_colour = colour;
+  for(int i = 0;i < 2; i++)
+  {
+    out_colour = colour[i];
+  }
   // *********************************
 }
