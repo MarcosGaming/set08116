@@ -61,7 +61,8 @@ bool render() {
   // *********************************
   // Set the colour value for the shader here (Hint: rep the Brand, use the NapierRed macro)
   vector<vec4> colours{ vec4(NapierRed,1.0f),vec4(0.0f,1.0f,0.0f,1.0f) };
-  glUniform4fv(eff.get_uniform_location("colour"), 2, value_ptr(colours)); //Ask this in class
+  glUniform4fv(eff.get_uniform_location("colour"), 1, value_ptr(vec4(0.0f,1.0f,0.0f,1.0f)));
+  glUniform4fv(eff.get_uniform_location("colour2"), 1, value_ptr(vec4(NapierRed,1.0f)));
   // *********************************
 
   // Render the mesh
