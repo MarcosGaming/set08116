@@ -18,12 +18,11 @@ bool load_content() {
   // Positions
   vector<vec3> positions
   {
-	  vec3(-1.0f, 1.0f, 0.0f), vec3(-1.0f, -1.0f, 0.0f), vec3(1.0f, -1.0f, 0.0f),
-	  vec3(-1.0f, 1.0f, 0.0f), vec3(1.0f, -1.0f, 0.0f), vec3(1.0f, 1.0f, 0.0f)
+	  vec3(-1.0f, 1.0f, 0.0f), vec3(-1.0f, -1.0f, 0.0f), vec3(1.0f, -1.0f, 0.0f),vec3(-1.0f, 1.0f, 0.0f),vec3(1.0f, -1.0f, 0.0f), vec3(1.0f, 1.0f, 0.0f)
   };
   // *********************************
   // Define texture coordinates for triangle
-  vector<vec2> textureCoordinates{ vec2(0.0f,1.0f),vec2(0.0f,0.0f),vec2(1.0f,0.0f), vec2(0.0f,1.0f),vec2(1.0f,0.0f),vec2(1.0f,1.0f) };
+  vector<vec2> textureCoordinates{ vec2(-1.0f,2.0f),vec2(-1.0f,-1.0f),vec2(2.0f,-1.0f), vec2(-1.0f,2.0f),vec2(2.0f,-1.0f),vec2(2.0f,2.0f) };
   // *********************************
   // Add to the geometry
   geom.add_buffer(positions, BUFFER_INDEXES::POSITION_BUFFER);
@@ -31,7 +30,6 @@ bool load_content() {
   // Add texture coordinate buffer to geometry
   geom.add_buffer(textureCoordinates, BUFFER_INDEXES::TEXTURE_COORDS_0);
   // *********************************
-
   // Create mesh object
   m = mesh(geom);
 
@@ -43,7 +41,7 @@ bool load_content() {
   // Build effect
   eff.build();
   // Load texture "textures/sign.jpg"
-  tex = texture("textures/blend_map2.jpg");
+  tex = texture("textures/brick.jpg");
   // *********************************
 
   // Set camera properties

@@ -29,9 +29,9 @@ bool load_content() {
   // Create three mesh objects - reuse geometry
   for (auto &m : meshes) {
     // *********************************
-
+	  m = mesh(geom);
     // Scale each mesh by 10
-
+	  m.get_transform().scale *= 10;
     // *********************************
   }
 
@@ -68,10 +68,10 @@ bool load_content() {
 bool update(float delta_time) {
   // Move camera with cursor
   if (glfwGetKey(renderer::get_window(), GLFW_KEY_UP)) {
-    cam.set_position(cam.get_position() - vec3(0.0f, 0.0f, 10.0f) * delta_time);
+    cam.set_position(cam.get_position() - vec3(0.0f, 0.0f, 30.0f) * delta_time);
   }
   if (glfwGetKey(renderer::get_window(), GLFW_KEY_DOWN)) {
-    cam.set_position(cam.get_position() + vec3(0.0f, 0.0f, 10.0f) * delta_time);
+    cam.set_position(cam.get_position() + vec3(0.0f, 0.0f, 30.0f) * delta_time);
   }
   // Update the camera
   cam.update(delta_time);
@@ -92,12 +92,12 @@ bool render() {
     glUniformMatrix4fv(eff.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
 
     // *********************************
-    // Bind correct texture to renderer
-
-    // Set the texture value for the shader here
-
-    // Render the mesh
-
+    // Bind correct texture to renderer									
+	renderer::bind(texs[i], i);
+    // Set the texture value for the shader here						
+	glUniform1i(eff.get_uniform_location("tex"), i);
+    // Render the mesh													
+	renderer::render(meshes[i]);
     // *********************************
   }
 
