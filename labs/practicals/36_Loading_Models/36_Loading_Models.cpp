@@ -13,9 +13,11 @@ target_camera cam;
 bool load_content() {
   // *********************************
   // Load in model, models/teapot.obj
-
+	m = mesh(geometry("models/suzanne.3ds"));
+	//m.get_transform().translate(vec3(0.0f, -960.0f, 0.0f));
+	m.get_transform().scale *= 50;
   // Load in texture, textures/checker.png
-
+	tex = texture("textures/checker.png");
   // *********************************
 
   // Load in shaders
@@ -33,6 +35,7 @@ bool load_content() {
 }
 
 bool update(float delta_time) {
+  m.get_transform().rotate(vec3(0.0f, delta_time,0.0f));
   // Update the camera
   cam.update(delta_time);
   return true;
@@ -51,9 +54,9 @@ bool render() {
 
   // *********************************
   // Bind texture to renderer
-
+  renderer::bind(tex, 0);
   // Set the texture value for the shader here
-
+  glUniform1i(eff.get_uniform_location("tex"), 0);
   // *********************************
 
   // Render mesh

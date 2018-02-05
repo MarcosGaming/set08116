@@ -62,7 +62,7 @@ bool load_content() {
 
 bool update(float delta_time) {
   // Move camera, notice the slightly altered technique
-  vec3 dir;
+  vec3 dir = vec3(0.0f);
   if (glfwGetKey(renderer::get_window(), GLFW_KEY_UP)) {
     dir += vec3(0.0f, 10.0f, 0.0f);
   }
@@ -95,10 +95,10 @@ bool render() {
     glUniformMatrix4fv(eff.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
 
     // Bind correct texture to renderer
-    renderer::bind(texs[i], 0);
+    renderer::bind(texs[i], i);
 
     // Set the texture value for the shader here
-    glUniform1i(eff.get_uniform_location("tex"),0);
+    glUniform1i(eff.get_uniform_location("tex"),i);
 
     // Render the mesh
     renderer::render(meshes[i]);
