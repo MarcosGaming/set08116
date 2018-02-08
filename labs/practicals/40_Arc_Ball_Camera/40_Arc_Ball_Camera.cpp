@@ -17,9 +17,9 @@ double cursor_y = 0.0;
 bool initialise() {
   // *********************************
   // Set input mode - hide the cursor
-
+	glfwSetInputMode(renderer::get_window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   // Capture initial mouse position
-
+	glfwGetCursorPos(renderer::get_window(), &cursor_x, &cursor_y);
   // *********************************
 
   return true;
@@ -88,51 +88,53 @@ bool update(float delta_time) {
   double current_y;
   // *********************************
   // Get the current cursor position
-
+  glfwGetCursorPos(renderer::get_window(), &current_x, &current_y);
   // Calculate delta of cursor positions from last frame
-
-
+  float delta_x = current_x - cursor_x;
+  float delta_y = current_y - cursor_y;
   // Multiply deltas by ratios and delta_time - gets actual change in orientation
-
-
+  delta_x *= ratio_width;
+  delta_y *= ratio_height;
   // Rotate cameras by delta
   // delta_y - x-axis rotation
   // delta_x - y-axis rotation
-
+  cam.rotate(delta_y, delta_x);
   // Use keyboard to move the target_mesh- WSAD
   // Also remember to translate camera
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  if (glfwGetKey(renderer::get_window(), 'W'))
+  {
+	  target_mesh.get_transform().translate(vec3(0.0f, 0.0f, -2.0f));
+	  cam.translate(vec3(0.0f, 0.0f, -2.0f));
+  }
+  if (glfwGetKey(renderer::get_window(), 'S'))
+  {
+	  target_mesh.get_transform().translate(vec3(0.0f, 0.0f, 2.0f));
+	  cam.translate(vec3(0.0f, 0.0f, 2.0f));
+  }
+  if (glfwGetKey(renderer::get_window(), 'A'))
+  {
+	  target_mesh.get_transform().translate(vec3(-2.0f, 0.0f, 0.0f));
+	  cam.translate(vec3(-2.0f, 0.0f, 0.0f));
+  }
+  if (glfwGetKey(renderer::get_window(), 'D'))
+  {
+	  target_mesh.get_transform().translate(vec3(2.0f, 0.0f, 0.0f));
+	  cam.translate(vec3(2.0f, 0.0f, 0.0f));
+  }
   // Use UP and DOWN to change camera distance
-
-
-
-
-
-
+  if (glfwGetKey(renderer::get_window(), GLFW_KEY_UP))
+  {
+	  cam.move(2.0f);
+  }
+  if (glfwGetKey(renderer::get_window(), GLFW_KEY_DOWN))
+  {
+	  cam.move(-2.0f);
+  }
   // Update the camera
-
+  cam.update(delta_time);
   // Update cursor pos
-
-
+  cursor_x = current_x;
+  cursor_y = current_y;
   // *********************************
   return true;
 }

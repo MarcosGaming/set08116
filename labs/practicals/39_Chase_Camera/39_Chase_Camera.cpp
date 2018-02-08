@@ -15,9 +15,9 @@ double cursor_y = 0.0;
 bool initialise() {
   // *********************************
   // Set input mode - hide the cursor
-
+	glfwSetInputMode(renderer::get_window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   // Capture initial mouse position
-
+	glfwGetCursorPos(renderer::get_window(), &cursor_x, &cursor_y);
   // *********************************
 
   return true;
@@ -88,47 +88,51 @@ bool update(float delta_time) {
   double current_y;
   // *********************************
   // Get the current cursor position
-
+  glfwGetCursorPos(renderer::get_window(), &current_x, &current_y);
   // Calculate delta of cursor positions from last frame
-
-
+  float delta_x = current_x - cursor_x;
+  float delta_y = current_y - cursor_y;
   // Multiply deltas by ratios and delta_time - gets actual change in orientation
-
-
+  delta_x *= ratio_width;
+  delta_y *= ratio_height;
   // Rotate cameras by delta
   // x - delta_y
   // y - delta_x
   // z - 0
-
+  cam.rotate(vec3(delta_y, delta_x,0.0f));
   // Use keyboard to rotate target_mesh - QE rotate on y-axis
-
-
-
-
+  if (glfwGetKey(renderer::get_window(), 'Q'))
+  {
+	  target_mesh.get_transform().rotate(vec3(0.0f, pi<float>()*delta_time, 0.0f));
+  }
+  if (glfwGetKey(renderer::get_window(), 'E'))
+  {
+	  target_mesh.get_transform().rotate(vec3(0.0f, -pi<float>()*delta_time, 0.0f));
+  }
   // Use keyboard to move the target_mesh - WSAD
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  if (glfwGetKey(renderer::get_window(), 'W'))
+  {
+	  target_mesh.get_transform().translate(vec3(0.0f, 0.0f, -2.0f));
+  }
+  if (glfwGetKey(renderer::get_window(), 'S'))
+  {
+	  target_mesh.get_transform().translate(vec3(0.0f, 0.0f, 2.0f));
+  }
+  if (glfwGetKey(renderer::get_window(), 'A'))
+  {
+	  target_mesh.get_transform().translate(vec3(-2.0f, 0.0f, 0.0f));
+  }
+  if (glfwGetKey(renderer::get_window(), 'D'))
+  {
+	  target_mesh.get_transform().translate(vec3(2.0f, 0.0f, 0.0f));
+  }
   // Move camera - update target position and rotation
-
+  cam.move(target_mesh.get_transform().position, eulerAngles(target_mesh.get_transform().orientation));
   // Update the camera
-
+  cam.update(delta_time);
   // Update cursor pos
-
-
+  cursor_x = current_x;
+  cursor_y = current_y;
   // *********************************
   return true;
 }
