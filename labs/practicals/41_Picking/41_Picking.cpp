@@ -89,10 +89,8 @@ bool update(float delta_time) {
                         m.second.get_transform().get_transform_matrix(), distance))
         cout << m.first << " " << distance << endl;
     }
+	return true;
   }
-
-  return true;
-}
 
 bool render() {
   // Render meshes
