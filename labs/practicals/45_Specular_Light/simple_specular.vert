@@ -32,7 +32,8 @@ void main() {
   // Transform the normal
   vec3 transformed_normal = N*normal;
   // Calculate world position
-  vec3 p = M*vec4(position,1.0f);
+  vec4 world_position = M * vec4(position,1.0f);
+  vec3 p = vec3(world_position);
   // Calculate view direction
   vec3 view_dir = normalize(eye_pos-p);
   // Calculate half vector between view_dir and light_dir
