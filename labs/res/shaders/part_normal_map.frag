@@ -4,11 +4,11 @@ vec3 calc_normal(in vec3 normal, in vec3 tangent, in vec3 binormal, in sampler2D
 {
 	// *********************************
 	// Ensure normal, tangent and binormal are unit length (normalized)
-
-
-
+	normal = normalize(normal);
+	tangent = normalize(tangent);
+	binormal = normalize(binormal);
 	// Sample normal from normal map
-
+	vec3 sampled_normal = texture(normal_map,tex_coord).xyz;
 	// *********************************
 	// Transform components to range [0, 1]
 	sampled_normal = 2.0 * sampled_normal - vec3(1.0, 1.0, 1.0);

@@ -84,7 +84,7 @@ bool load_content() {
   meshes["torus"].get_material().set_shininess(25.0f);
 
   // Load texture
-  tex = texture("textures/checker.png");
+  tex = texture("textures/checked.gif");
 
   // Set lighting values
   light.set_ambient_intensity(vec4(0.3f, 0.3f, 0.3f, 1.0f));
@@ -165,15 +165,15 @@ bool render() {
 
     // *********************************
     // Set fog colour to the same as the clear colour
-
+	glUniform4fv(eff.get_uniform_location("fog_colour"), 1, value_ptr(vec4(1.0f,1.0f,1.0f,1.0f)));
     // Set fog start:  5.0f
-
+	glUniform1f(eff.get_uniform_location("fog_start"), 5.0f);
     // Set fog end:  100.0f
-
+	glUniform1f(eff.get_uniform_location("fog_end"), 100.0f);
     // Set fog density: 0.04f
-
+	glUniform1f(eff.get_uniform_location("fog_density"), 0.04f);
     // Set fog type: FOG_EXP2
-
+	glUniform1i(eff.get_uniform_location("fog_type"), FOG_LINEAR);
     // *********************************
 
     // Render mesh
