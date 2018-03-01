@@ -44,7 +44,7 @@ void generate_terrain(geometry &geom, const texture &height_map, unsigned int wi
     for (int z = 0; z < height_map.get_height(); ++z) {
       // *********************************
       // Calculate z position of point
-		point.z = -(depth / 2) + (depth_point*z);
+		point.z = -(depth / 2) + (depth_point* static_cast<float>(z));
       // *********************************
       // Y position based on red component of height map data
       point.y = data[(z * height_map.get_width()) + x].y * height_scale;
@@ -157,7 +157,8 @@ bool load_content() {
 
   // Use geometry to create terrain mesh
   terr = mesh(geom);
-
+  terr.get_transform().position = vec3(0.0f, 0.0f, 0.0f);
+  terr.get_transform().scale *= 10;
   // Load in necessary shaders
   eff.add_shader("60_Terrain/terrain.vert", GL_VERTEX_SHADER);
   eff.add_shader("60_Terrain/terrain.frag", GL_FRAGMENT_SHADER);
