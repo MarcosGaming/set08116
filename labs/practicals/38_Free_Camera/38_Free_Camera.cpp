@@ -150,6 +150,7 @@ void main() {
   app application("38_Free_Camera");
   // Set load content, update and render methods
   application.set_load_content(load_content);
+  application.set_initialise(initialise);
   application.set_update(update);
   application.set_render(render);
   // Run application
