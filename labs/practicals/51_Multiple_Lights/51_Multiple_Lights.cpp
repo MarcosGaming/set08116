@@ -213,7 +213,7 @@ bool render() {
     // Bind texture
 	renderer::bind(tex, 0);
     // Set tex uniform
-	glUniform1i(eff.get_uniform_location("mat"), 0);
+	glUniform1i(eff.get_uniform_location("tex"), 0);
     // Set eye position- Get this from active camera
 	glUniform3fv(eff.get_uniform_location("eye_pos"), 1, value_ptr(cam.get_position()));
     // Render mesh

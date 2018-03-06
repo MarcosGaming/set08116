@@ -1,3 +1,5 @@
+#version 440
+
 // Spot light data
 #ifndef SPOT_LIGHT
 #define SPOT_LIGHT
