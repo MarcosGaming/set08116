@@ -34,28 +34,44 @@ double arc_cam_cursor_x = 0.0;
 double arc_cam_cursor_y = 0.0;
 
 //Render Methods
-void normalMappingRendering(mat4 &MVP, mesh &m, texture &tex, texture &normal_map)
+void setUniforms(mat4 &MVP, mesh &m, effect &eff)
 {
-	renderer::bind(effects["normal_map_eff"]);
+	renderer::bind(eff);
 	//Set MVP uniform
-	glUniformMatrix4fv(effects["normal_map_eff"].get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
+	glUniformMatrix4fv(eff.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
 	//Set M uniform
-	glUniformMatrix4fv(effects["normal_map_eff"].get_uniform_location("M"), 1, GL_FALSE, value_ptr(m.get_transform().get_transform_matrix()));
+	glUniformMatrix4fv(eff.get_uniform_location("M"), 1, GL_FALSE, value_ptr(m.get_transform().get_transform_matrix()));
 	//Set N uniform
-	glUniformMatrix3fv(effects["normal_map_eff"].get_uniform_location("N"), 1, GL_FALSE, value_ptr(m.get_transform().get_normal_matrix()));
+	glUniformMatrix3fv(eff.get_uniform_location("N"), 1, GL_FALSE, value_ptr(m.get_transform().get_normal_matrix()));
 	//Create lightMVP
 	auto lightM = m.get_transform().get_transform_matrix();
 	auto lightV = shadow_spot.get_view();
 	mat4 LightProjectionMat = perspective<float>(90.f, renderer::get_screen_aspect(), 0.1f, 1000.f);
-	auto lightMVP = LightProjectionMat * lightV*lightM;
+	auto lightMVP = LightProjectionMat * lightV * lightM;
 	// Set lightMVP uniform
-	glUniformMatrix4fv(effects["normal_map_eff"].get_uniform_location("lightMVP"), 1, GL_FALSE, value_ptr(lightMVP));
+	glUniformMatrix4fv(eff.get_uniform_location("lightMVP"), 1, GL_FALSE, value_ptr(lightMVP));
 	//Bind material
 	renderer::bind(m.get_material(), "mat");
 	//Bind spot light
 	renderer::bind(moon_light, "spot");
 	//Bind point light
 	renderer::bind(gem_light, "point");
+	//Set eye position
+	if (camera_on._Equal("Free Camera"))
+	{
+		glUniform3fv(eff.get_uniform_location("eye_pos"), 1, value_ptr(free_cam.get_position()));
+	}
+	if (camera_on._Equal("Target Camera"))
+	{
+		glUniform3fv(eff.get_uniform_location("eye_pos"), 1, value_ptr(target_cam.get_position()));
+	}
+	if (camera_on._Equal("Arc Camera"))
+	{
+		glUniform3fv(eff.get_uniform_location("eye_pos"), 1, value_ptr(arc_cam.get_position()));
+	}
+}
+void setNormalMappingTextures(mesh &m, texture &tex, texture &normal_map)
+{
 	//Bind texture
 	renderer::bind(tex, 0);
 	//Set tex uniform
@@ -64,47 +80,13 @@ void normalMappingRendering(mat4 &MVP, mesh &m, texture &tex, texture &normal_ma
 	renderer::bind(normal_map, 1);
 	//Set normal_map uniform
 	glUniform1i(effects["normal_map_eff"].get_uniform_location("normal_map"), 1);
-	//Set eye position
-	if (camera_on._Equal("Free Camera"))
-	{
-		glUniform3fv(effects["normal_map_eff"].get_uniform_location("eye_pos"), 1, value_ptr(free_cam.get_position()));
-	}
-	if (camera_on._Equal("Target Camera"))
-	{
-		glUniform3fv(effects["normal_map_eff"].get_uniform_location("eye_pos"), 1, value_ptr(target_cam.get_position()));
-	}
-	if (camera_on._Equal("Arc Camera"))
-	{
-		glUniform3fv(effects["normal_map_eff"].get_uniform_location("eye_pos"), 1, value_ptr(arc_cam.get_position()));
-	}
 	// Bind shadow map texture
 	renderer::bind(shadow_spot.buffer->get_depth(), 2);
 	// Set the shadow_map uniform
 	glUniform1i(effects["normal_map_eff"].get_uniform_location("shadow_map"), 2);
 }
-void blendMappingRendering(mat4 &MVP, mesh &m, array<texture, 2> &textures, texture &blend_map)
+void setBlendMappingTextures(mesh &m, array<texture, 2> &textures, texture &blend_map)
 {
-	//Bind effect
-	renderer::bind(effects["blend_eff"]);
-	//Set MVP uniform
-	glUniformMatrix4fv(effects["blend_eff"].get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
-	//Set M uniform
-	glUniformMatrix4fv(effects["blend_eff"].get_uniform_location("M"), 1, GL_FALSE, value_ptr(m.get_transform().get_transform_matrix()));
-	//Set N uniform
-	glUniformMatrix3fv(effects["blend_eff"].get_uniform_location("N"), 1, GL_FALSE, value_ptr(m.get_transform().get_normal_matrix()));
-	//Create lightMVP
-	auto lightM = m.get_transform().get_transform_matrix();
-	auto lightV = shadow_spot.get_view();
-	mat4 LightProjectionMat = perspective<float>(90.f, renderer::get_screen_aspect(), 0.1f, 1000.f);
-	auto lightMVP = LightProjectionMat * lightV*lightM;
-	// Set lightMVP uniform
-	glUniformMatrix4fv(effects["blend_eff"].get_uniform_location("lightMVP"), 1, GL_FALSE, value_ptr(lightMVP));
-	//Bind material
-	renderer::bind(m.get_material(), "mat");
-	//Bind spot light
-	renderer::bind(moon_light, "spot");
-	//Bind point light
-	renderer::bind(gem_light, "point");
 	//Bind textures
 	renderer::bind(textures[0], 0);
 	renderer::bind(textures[1], 1);
@@ -113,23 +95,10 @@ void blendMappingRendering(mat4 &MVP, mesh &m, array<texture, 2> &textures, text
 	static int tex_indices[] = { 0, 1 };
 	glUniform1iv(effects["blend_eff"].get_uniform_location("tex"), 2, tex_indices);
 	glUniform1i(effects["blend_eff"].get_uniform_location("blend"), 2);
-	//Set eye position
-	if (camera_on._Equal("Free Camera"))
-	{
-		glUniform3fv(effects["blend_eff"].get_uniform_location("eye_pos"), 1, value_ptr(free_cam.get_position()));
-	}
-	if (camera_on._Equal("Target Camera"))
-	{
-		glUniform3fv(effects["blend_eff"].get_uniform_location("eye_pos"), 1, value_ptr(target_cam.get_position()));
-	}
-	if (camera_on._Equal("Arc Camera"))
-	{
-		glUniform3fv(effects["blend_eff"].get_uniform_location("eye_pos"), 1, value_ptr(arc_cam.get_position()));
-	}
 	// Bind shadow map texture
 	renderer::bind(shadow_spot.buffer->get_depth(), 3);
 	// Set the shadow_map uniform
-	glUniform1i(effects["normal_map_eff"].get_uniform_location("shadow_map"), 3);
+	glUniform1i(effects["blend_eff"].get_uniform_location("shadow_map"), 3);
 }
 //Shadow mapping methods
 void spotShadowing()
@@ -142,11 +111,9 @@ void spotShadowing()
 	glCullFace(GL_FRONT);
 	//Bind shader
 	renderer::bind(effects["shadow_spot_eff"]);
-
 	//View and projection matrices
 	auto V = shadow_spot.get_view();
 	mat4 LightProjectionMat = perspective<float>(90.f, renderer::get_screen_aspect(), 0.1f, 1000.f);
-
 	//Render plane
 	auto planeM = plane.get_transform().get_transform_matrix();
 	auto planeMVP = LightProjectionMat * V * planeM;
@@ -417,17 +384,16 @@ bool load_content()
 	}
 
 	//Set spot light properties
-	moon_light.set_position(vec3(200.0F, 225.0f, 0.0f));
+	moon_light.set_position(vec3(35.0F, 60.0f, 0.0f));
 	moon_light.set_light_colour(vec4(0.5f, 0.5f, 0.5f, 1.0f));
 	moon_light.set_direction(vec3(-1.0f, -1.0f, 0.0f));
-	moon_light.set_range(1500.0f);
-	moon_light.set_power(3.0f);
+	moon_light.set_range(1000.0f);
+	moon_light.set_power(5.0f);
 	//Set point light properties
 	gem_light.set_position(pyramid_meshes[0].get_transform().position);
 	gem_light.move(vec3(0.0f,-1.8f,0.0f));
 	gem_light.set_light_colour(vec4(0.0f, 1.0f, 0.0f, 1.0f));
 	gem_light.set_range(50.0f);
-	//gem_light.set_linear_attenuation(0.202f);
 
 	//Create cubemap
 	array<string, 6> skyboxFiles =
@@ -443,22 +409,18 @@ bool load_content()
 	effects["sky_eff"].build();
 	//Normal map effect
 	effects["normal_map_eff"].add_shader("res/shaders/shader.vert", GL_VERTEX_SHADER);
-	effects["normal_map_eff"].add_shader("res/shaders/shader.frag", GL_FRAGMENT_SHADER);
-	effects["normal_map_eff"].add_shader("res/shaders/normal_map.frag", GL_FRAGMENT_SHADER);
-	effects["normal_map_eff"].add_shader("res/shaders/spot.frag", GL_FRAGMENT_SHADER);
-	effects["normal_map_eff"].add_shader("res/shaders/point.frag", GL_FRAGMENT_SHADER);
-	effects["normal_map_eff"].add_shader("res/shaders/shadow.frag", GL_FRAGMENT_SHADER);
+	vector<string> normal_map_shaders{ "res/shaders/shader.frag", "res/shaders/normal_map.frag", "res/shaders/spot.frag", "res/shaders/point.frag","res/shaders/shadow.frag" };
+	effects["normal_map_eff"].add_shader(normal_map_shaders, GL_FRAGMENT_SHADER);
 	effects["normal_map_eff"].build();
 	//Blend map effect
 	effects["blend_eff"].add_shader("res/shaders/blend.vert", GL_VERTEX_SHADER);
-	effects["blend_eff"].add_shader("res/shaders/blend.frag", GL_FRAGMENT_SHADER);
-	effects["blend_eff"].add_shader("res/shaders/spot.frag", GL_FRAGMENT_SHADER);
-	effects["blend_eff"].add_shader("res/shaders/point.frag", GL_FRAGMENT_SHADER);
-	effects["blend_eff"].add_shader("res/shaders/shadow.frag", GL_FRAGMENT_SHADER);
+	vector<string> blend_shaders{ "res/shaders/blend.frag", "res/shaders/spot.frag", "res/shaders/point.frag","res/shaders/shadow.frag" };
+	effects["blend_eff"].add_shader(blend_shaders, GL_FRAGMENT_SHADER);
 	effects["blend_eff"].build();
 	//Shadow map effect
 	effects["shadow_spot_eff"].add_shader("res/shaders/shadow_spot.vert",GL_VERTEX_SHADER);
 	effects["shadow_spot_eff"].add_shader("res/shaders/shadow_spot.frag",GL_FRAGMENT_SHADER);
+	effects["shadow_spot_eff"].build();
 
 	//Load textures
 	textures["plane_texture1"] = texture("res/textures/plane_texture1.jpg");
@@ -524,16 +486,15 @@ bool update(float delta_time)
 	pyramid_meshes[5].get_transform().rotate(vec3(0.0f, 0.0f, -half_pi<float>()*delta_time));
 	pyramid_meshes[6].get_transform().rotate(vec3(-half_pi<float>()*delta_time, -half_pi<float>()*delta_time, -half_pi<float>()*delta_time));
 
-	//Update shadow map light position and direction
-	shadow_spot.light_position = moon_light.get_position();
-	shadow_spot.light_dir = moon_light.get_direction();
-
 	//Target camera
 	updateTargetCamera(delta_time);
 	//Free camera
 	updateFreeCamera(delta_time);
 	//Arc ball camera
 	updateArcBallCamera(delta_time);
+	//Update shadow map light position and direction
+	shadow_spot.light_position = moon_light.get_position();
+	shadow_spot.light_dir = moon_light.get_direction();
 
 	return true;
 }
@@ -557,10 +518,6 @@ bool render() {
 		V = arc_cam.get_view();
 		P = arc_cam.get_projection();
 	}
-
-	//Shadowing spot rendering
-	spotShadowing();
-
 	//Skybox
 	//Disable depth test,depth mask,face culling
 	glDisable(GL_DEPTH_TEST);
@@ -583,6 +540,9 @@ bool render() {
 	glDepthMask(GL_TRUE);
 	glCullFace(GL_BACK);
 
+	//Shadowing spot rendering
+	spotShadowing();
+
 	//Plane
 	//Create plane MVP
 	auto planeM = plane.get_transform().get_transform_matrix();
@@ -592,7 +552,8 @@ bool render() {
 	plane_textures[0] = textures["plane_texture1"];
 	plane_textures[1] = textures["plane_texture2"];
 	//Render plane
-	blendMappingRendering(planeMVP, plane, plane_textures, textures["plane_map"]);
+	setUniforms(planeMVP, plane, effects["blend_eff"]);
+	setBlendMappingTextures(plane, plane_textures, textures["plane_map"]);
 	renderer::render(plane);
 
 	// Render model meshes 
@@ -605,12 +566,14 @@ bool render() {
 		//Render blade
 		if (m.get_geometry().get_array_object() == model_meshes["blade"].get_geometry().get_array_object())
 		{
-			normalMappingRendering(MVP, m, textures["blade_texture"], textures["blade_map"]);
+			setUniforms(MVP, m, effects["normal_map_eff"]);
+			setNormalMappingTextures(m, textures["blade_texture"], textures["blade_map"]);
 		}
 		//Render rock
 		else if (m.get_geometry().get_array_object() == model_meshes["rock"].get_geometry().get_array_object())
 		{
-			normalMappingRendering(MVP, m, textures["rock_texture"], textures["rock_map"]);
+			setUniforms(MVP, m, effects["normal_map_eff"]);
+			setNormalMappingTextures(m, textures["rock_texture"], textures["rock_map"]);
 		}
 		//Render columns
 		else if (m.get_geometry().get_array_object() == model_meshes["column1"].get_geometry().get_array_object() || m.get_geometry().get_array_object() == model_meshes["column2"].get_geometry().get_array_object())
@@ -618,17 +581,20 @@ bool render() {
 			array<texture, 2> blend_textures;
 			blend_textures[0] = textures["column_texture1"];
 			blend_textures[1] = textures["column_texture2"];
-			blendMappingRendering(MVP, m, blend_textures, textures["column_map"]);
+			setUniforms(MVP, m, effects["blend_eff"]);
+			setBlendMappingTextures(m, blend_textures, textures["column_map"]);
 		}
 		//Render Grave
 		else if (m.get_geometry().get_array_object() == model_meshes["grave"].get_geometry().get_array_object())
 		{
-			normalMappingRendering(MVP, m, textures["grave_texture"], textures["grave_map"]);
+			setUniforms(MVP, m, effects["normal_map_eff"]);
+			setNormalMappingTextures(m, textures["grave_texture"], textures["grave_map"]);
 		}
 		//Render dragon
 		else if (m.get_geometry().get_array_object() == model_meshes["dragon"].get_geometry().get_array_object())
 		{
-			normalMappingRendering(MVP, m, textures["dragon_texture"], textures["dragon_map"]);
+			setUniforms(MVP, m, effects["normal_map_eff"]);
+			setNormalMappingTextures(m, textures["dragon_texture"], textures["dragon_map"]);
 		}
 		renderer::render(m);
 	}
@@ -647,12 +613,14 @@ bool render() {
 		//Render the two pyramids and the sphere(they are in positions 0, 1 and 2 of the array)
 		if (i <= 2)
 		{
-			normalMappingRendering(MVP, pyramid_meshes[i], textures["pyramid_texture"], textures["pyramid_map"]);
+			setUniforms(MVP, pyramid_meshes[i], effects["normal_map_eff"]);
+			setNormalMappingTextures(pyramid_meshes[i], textures["pyramid_texture"], textures["pyramid_map"]);
 		}
 		//Render the rotating torus
 		else
 		{
-			normalMappingRendering(MVP, pyramid_meshes[i], textures["torus_texture"], textures["torus_map"]);
+			setUniforms(MVP, pyramid_meshes[i], effects["normal_map_eff"]);
+			setNormalMappingTextures(pyramid_meshes[i], textures["torus_texture"], textures["torus_map"]);
 		}
 		renderer::render(pyramid_meshes[i]);
 	}
@@ -660,7 +628,8 @@ bool render() {
 	return true;
 }
 
-void main() {
+void main() 
+{
 	app application("Graphics Coursework");
 	application.set_load_content(load_content);
 	application.set_initialise(initialise);

@@ -84,7 +84,7 @@ void main() {
   // Calculate spot light
   colour = calculate_spot(spot, mat, position, normal, view_dir, tex_colour);
   colour += calculate_point(point, mat, position, normal, view_dir, tex_colour);
-   // Scale colour by shade
-   colour *= shade_factor;
-   colour.a = 1.0f;
+  // Scale colour by shade
+  colour *= shade_factor;
+  colour.a = 1.0f;
 }

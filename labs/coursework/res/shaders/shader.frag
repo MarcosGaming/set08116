@@ -1,4 +1,4 @@
-#version 450 core
+#version 440
 
 // Spot light data
 #ifndef SPOT_LIGHT
