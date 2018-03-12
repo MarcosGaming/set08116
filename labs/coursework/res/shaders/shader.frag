@@ -84,7 +84,7 @@ void main() {
   // Calculate normal from normal map
 	vec3 map_normal = calc_normal(normal, tangent, binormal, normal_map, tex_coord);
   // Calculate spot light and point light
-	colour = calculate_spot(spot, mat, position, map_normal, view_dir, tex_colour);
+	colour += calculate_spot(spot, mat, position, map_normal, view_dir, tex_colour);
 	colour += calculate_point(point, mat, position, map_normal, view_dir, tex_colour);
   // Scale colour by shade
 	colour *= shade_factor;

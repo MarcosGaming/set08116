@@ -46,7 +46,7 @@ void setUniforms(mat4 &MVP, mesh &m, effect &eff)
 	//Create lightMVP
 	auto lightM = m.get_transform().get_transform_matrix();
 	auto lightV = shadow_spot.get_view();
-	mat4 LightProjectionMat = perspective<float>(90.f, renderer::get_screen_aspect(), 0.1f, 1000.f);
+	mat4 LightProjectionMat = perspective<float>(90.f, renderer::get_screen_aspect(), 0.1f, 2000.f);
 	auto lightMVP = LightProjectionMat * lightV * lightM;
 	// Set lightMVP uniform
 	glUniformMatrix4fv(eff.get_uniform_location("lightMVP"), 1, GL_FALSE, value_ptr(lightMVP));
@@ -113,14 +113,15 @@ void spotShadowing()
 	renderer::bind(effects["shadow_spot_eff"]);
 	//View and projection matrices
 	auto V = shadow_spot.get_view();
-	mat4 LightProjectionMat = perspective<float>(90.f, renderer::get_screen_aspect(), 0.1f, 1000.f);
+	mat4 LightProjectionMat = perspective<float>(90.f, renderer::get_screen_aspect(), 0.1f, 2000.f);
 	//Render plane
 	auto planeM = plane.get_transform().get_transform_matrix();
 	auto planeMVP = LightProjectionMat * V * planeM;
 	glUniformMatrix4fv(effects["shadow_spot_eff"].get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(planeMVP));
 	renderer::render(plane);
 	//Render model meshes
-	for (auto &e : model_meshes) {
+	for (auto &e : model_meshes) 
+	{
 		auto m = e.second;
 		// Create MVP matrix
 		auto M = m.get_transform().get_transform_matrix();
@@ -326,11 +327,11 @@ bool load_content()
 	pyramid_meshes[6].get_transform().scale *= 1.15f;
 	pyramid_meshes[6].get_transform().rotate(vec3(half_pi<float>(), 0.0f, 0.0f));
 	//Transform skybox
-	skybox.get_transform().scale *= 500;
+	skybox.get_transform().scale *= 2000;
 	skybox.get_transform().position = plane.get_transform().position;
-	skybox.get_transform().translate(vec3(0.0f, 200.0f, 0.0f));
+	skybox.get_transform().translate(vec3(0.0f, 500.0f, 0.0f));
 	//Transform plane
-	plane.get_transform().scale *= 5;
+	plane.get_transform().scale *= 20;
 
 	//Set plane material properties
 	plane.get_material().set_emissive(vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -384,7 +385,7 @@ bool load_content()
 	}
 
 	//Set spot light properties
-	moon_light.set_position(vec3(35.0F, 60.0f, 0.0f));
+	moon_light.set_position(vec3(225.0f, 225.0f, 0.0f));
 	moon_light.set_light_colour(vec4(0.5f, 0.5f, 0.5f, 1.0f));
 	moon_light.set_direction(vec3(-1.0f, -1.0f, 0.0f));
 	moon_light.set_range(1000.0f);
@@ -445,16 +446,16 @@ bool load_content()
 	//Set free camera properties
 	free_cam.set_position(vec3(10.0f, 100.0f, 225.0f));
 	free_cam.set_target(vec3(0.0f, 0.0f, 0.0f));
-	free_cam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 1000.0f);
+	free_cam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 2000.0f);
 	//Set target camera properties
 	target_cam.set_position(vec3(225.0f, 10.0f, 225.0f));
 	target_cam.set_target(vec3(0.0f, 50.0f, 0.0f));
-	target_cam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 1000.0f);
+	target_cam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 2000.0f);
 	//Set arc ball camera properties
 	arc_cam.set_target(pyramid_meshes[0].get_transform().position);
 	arc_cam.set_distance(70.0f);
 	arc_cam.translate(vec3(0.0f, 10.0f, 0.0f));
-	arc_cam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 1000.0f);
+	arc_cam.set_projection(quarter_pi<float>(), renderer::get_screen_aspect(), 0.1f, 2000.0f);
 
 	return true;
 }
@@ -486,6 +487,9 @@ bool update(float delta_time)
 	pyramid_meshes[5].get_transform().rotate(vec3(0.0f, 0.0f, -half_pi<float>()*delta_time));
 	pyramid_meshes[6].get_transform().rotate(vec3(-half_pi<float>()*delta_time, -half_pi<float>()*delta_time, -half_pi<float>()*delta_time));
 
+	// Press s to save
+	if (glfwGetKey(renderer::get_window(), 'U') == GLFW_PRESS)
+		shadow_spot.buffer->save("test.png");
 	//Target camera
 	updateTargetCamera(delta_time);
 	//Free camera
