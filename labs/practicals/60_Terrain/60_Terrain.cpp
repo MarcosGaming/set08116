@@ -173,7 +173,7 @@ bool load_content() {
   light.set_direction(normalize(vec3(1.0f, 1.0f, 1.0f)));
   terr.get_material().set_diffuse(vec4(0.5f, 0.5f, 0.5f, 1.0f));
   terr.get_material().set_specular(vec4(0.0f, 0.0f, 0.0f, 1.0f));
-  terr.get_material().set_shininess(20.0f);
+  terr.get_material().set_shininess(1.0f);
   terr.get_material().set_emissive(vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
   // terrian trextures

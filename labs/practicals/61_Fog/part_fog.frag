@@ -29,7 +29,7 @@ float calculate_fog(in float fog_coord, in vec4 fog_colour, in float fog_start, 
   }
   // *********************************
   // Result is 1 minus result clamped to 1.0 to 0.0
-  result = clamp(result, 0.0f, 1.0f);
+  result = 1.0F - clamp(result, 0.0f, 1.0f);
   // *********************************
   return result;
 }
