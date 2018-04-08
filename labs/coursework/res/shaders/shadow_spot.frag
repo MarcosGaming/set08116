@@ -49,7 +49,7 @@ void main() {
   float light_intensity = pow(max(dot(-spot.direction,light_dir),0.0f),spot.power);
   // Calculate light colour
   vec4 light_colour = (light_intensity*spot.light_colour)/attenuation;
-  // Calculate view direction
+  //Calculate view direction
   vec3 view_dir = normalize(eye_pos - position);
   // Now use standard phong shading but using calculated light colour and direction
   float k_diffuse = max(dot(normal,light_dir),0.0f);

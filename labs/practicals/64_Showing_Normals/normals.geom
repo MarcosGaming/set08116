@@ -15,23 +15,21 @@ void main() {
   // Calculate for each vertex
   for (int i = 0; i < 3; ++i) {
     // *********************************
-    // Get vertex pos
-
     // Ensure normal is normalized
-
+	normalize(normal[i]);
 
     // Output normal position for start of line
     // - remember to transform
-
+	gl_Position =  MVP * gl_in[i].gl_Position;;
     // Emit
-
+	EmitVertex();
     // Output position + normal for end of line
     // - remember to transform
-
+	gl_Position = MVP * (gl_in[i].gl_Position + vec4(normal[i],0.0f));
     // Emit
-
+	EmitVertex();
     // End the primitive
-
+	EndPrimitive();
     // *********************************
   }
 }

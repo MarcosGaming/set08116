@@ -6,10 +6,13 @@ using namespace graphics_framework;
 using namespace glm;
 
 mesh terr;
+mesh lava;
 effect eff;
 free_camera cam;
 directional_light light;
 texture tex[4];
+texture tex2;
+vec2 uv_scroll;
 
 void generate_terrain(geometry &geom, const texture &height_map, unsigned int width, unsigned int depth,
                       float height_scale) {
@@ -148,17 +151,21 @@ void generate_terrain(geometry &geom, const texture &height_map, unsigned int wi
 bool load_content() {
   // Geometry to load into
   geometry geom;
-
+  geometry geom2;
   // Load height map
-  texture height_map = texture("textures/heightmap.jpg");
+  texture height_map = texture("textures/heightmap2.jpg");
+  texture height_map2 = texture("textures/lava.jpg");
 
   // Generate terrain
   generate_terrain(geom, height_map, 20, 20, 2.0f);
-
+  generate_terrain(geom2, height_map2, 50, 50, 2.0f);
   // Use geometry to create terrain mesh
   terr = mesh(geom);
   terr.get_transform().position = vec3(0.0f, 0.0f, 0.0f);
-  terr.get_transform().scale *= 10;
+  terr.get_transform().scale *= 5;
+  lava = mesh(geom2);
+  lava.get_transform().position = vec3(0.0f, -3.5f, 0.0f);
+  lava.get_transform().scale *= 5;
   // Load in necessary shaders
   eff.add_shader("60_Terrain/terrain.vert", GL_VERTEX_SHADER);
   eff.add_shader("60_Terrain/terrain.frag", GL_FRAGMENT_SHADER);
@@ -171,7 +178,7 @@ bool load_content() {
   light.set_ambient_intensity(vec4(0.3f, 0.3f, 0.3f, 1.0f));
   light.set_light_colour(vec4(0.9f, 0.9f, 0.9f, 1.0f));
   light.set_direction(normalize(vec3(1.0f, 1.0f, 1.0f)));
-  terr.get_material().set_diffuse(vec4(0.5f, 0.5f, 0.5f, 1.0f));
+  terr.get_material().set_diffuse(vec4(0.2f, 0.2f, 0.2f, 1.0f));
   terr.get_material().set_specular(vec4(0.0f, 0.0f, 0.0f, 1.0f));
   terr.get_material().set_shininess(1.0f);
   terr.get_material().set_emissive(vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -181,6 +188,7 @@ bool load_content() {
   tex[1] = texture("textures/grass.jpg");
   tex[2] = texture("textures/stone.jpg");
   tex[3] = texture("textures/snow.jpg");
+  tex2 = texture("textures/lava_texture.png");
 
   // Set camera properties
   cam.set_position(vec3(0.0f, 5.0f, 10.0f));
@@ -191,6 +199,7 @@ bool load_content() {
 }
 
 bool update(float delta_time) {
+	uv_scroll += vec2(0, delta_time * 0.1);
   // The ratio of pixels to rotation - remember the fov
   static double ratio_width = quarter_pi<float>() / static_cast<float>(renderer::get_screen_width());
   static double ratio_height =
@@ -212,16 +221,16 @@ bool update(float delta_time) {
   // Use keyboard to move the camera - WASD
   vec3 translation(0.0f, 0.0f, 0.0f);
   if (glfwGetKey(renderer::get_window(), 'W')) {
-    translation.z += 5.0f * delta_time;
+    translation.z += 20.0f * delta_time;
   }
   if (glfwGetKey(renderer::get_window(), 'S')) {
-    translation.z -= 5.0f * delta_time;
+    translation.z -= 20.0f * delta_time;
   }
   if (glfwGetKey(renderer::get_window(), 'A')) {
-    translation.x -= 5.0f * delta_time;
+    translation.x -= 20.0f * delta_time;
   }
   if (glfwGetKey(renderer::get_window(), 'D')) {
-    translation.x += 5.0f * delta_time;
+    translation.x += 20.0f * delta_time;
   }
   // Move camera
   cam.move(translation);
@@ -268,9 +277,52 @@ bool render() {
   // Bind Tex[3] to TU 3, set uniform
   renderer::bind(tex[3], 3);
   glUniform1i(eff.get_uniform_location("tex[3]"), 3);
+  // Set UV_scroll uniform, adds cool movent (Protip: This is a super easy way to do fire effects;))
+  glUniform2fv(eff.get_uniform_location("UV_SCROLL"), 1, value_ptr(vec2(0.0f,0.0f)));
   // *********************************
   // Render terrain
   renderer::render(terr);
+
+  // Bind effect
+  renderer::bind(eff);
+  // Create MVP matrix
+   M = lava.get_transform().get_transform_matrix();
+   V = cam.get_view();
+   P = cam.get_projection();
+   MVP = P * V * M;
+  // Set MVP matrix uniform
+  glUniformMatrix4fv(eff.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
+  // Set M matrix uniform
+  glUniformMatrix4fv(eff.get_uniform_location("M"), 1, GL_FALSE, value_ptr(M));
+  // Set N matrix uniform
+  glUniformMatrix3fv(eff.get_uniform_location("N"), 1, GL_FALSE, value_ptr(terr.get_transform().get_normal_matrix()));
+  // *********************************
+  // Set eye_pos uniform to camera position
+  glUniform3fv(eff.get_uniform_location("eye_pos"), 1, value_ptr(cam.get_position()));
+  // *********************************
+  //Bind Terrian Material
+  renderer::bind(terr.get_material(), "mat");
+  // Bind Light
+  renderer::bind(light, "light");
+  // Bind Tex[0] to TU 0, set uniform
+  renderer::bind(tex2, 0);
+  glUniform1i(eff.get_uniform_location("tex[0]"), 0);
+  // *********************************
+  //Bind Tex[1] to TU 1, set uniform
+  renderer::bind(tex2, 1);
+  glUniform1i(eff.get_uniform_location("tex[1]"), 1);
+  // Bind Tex[2] to TU 2, set uniform
+  renderer::bind(tex2, 2);
+  glUniform1i(eff.get_uniform_location("tex[2]"), 2);
+  // Bind Tex[3] to TU 3, set uniform
+  renderer::bind(tex2, 3);
+  glUniform1i(eff.get_uniform_location("tex[3]"), 3);
+  // Set UV_scroll uniform, adds cool movent (Protip: This is a super easy way to do fire effects;))
+  glUniform2fv(eff.get_uniform_location("UV_SCROLL"), 1, value_ptr(uv_scroll));
+  // *********************************
+  // Render terrain
+  renderer::render(lava);
+ 
 
   return true;
 }

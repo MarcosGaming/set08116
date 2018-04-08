@@ -19,7 +19,7 @@ void main(void) {
 
   // *********************************
   // Upadte new_pos with velocity and delta_tims
-
+  vec4 new_pos = pos + (vel * delta_time);
   // *********************************
 
   // Keep all particles on screen

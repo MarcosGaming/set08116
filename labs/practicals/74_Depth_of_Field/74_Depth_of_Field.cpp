@@ -31,18 +31,20 @@ bool initialise() {
 bool load_content() {
   // *********************************
   // Create 2 frame buffers - use screen width and height
-
-
-
-  // Create a first_pass frame
-
-  // Create screen quad
-
-
-
-
-
-
+	temp_frames[0] = frame_buffer(renderer::get_screen_width(), renderer::get_screen_height());
+	temp_frames[1] = frame_buffer(renderer::get_screen_width(), renderer::get_screen_height());
+	// Create a first pass frame
+	first_pass = frame_buffer(renderer::get_screen_width(), renderer::get_screen_height());
+	// Create screen quad
+	vector<vec3> positions{ vec3(-1.0f, -1.0f, 0.0f), vec3(1.0f, -1.0f, 0.0f), vec3(-1.0f, 1.0f, 0.0f),
+		vec3(1.0f, 1.0f, 0.0f) };
+	vector<vec2> tex_coords{ vec2(0.0, 0.0), vec2(1.0f, 0.0f), vec2(0.0f, 1.0f), vec2(1.0f, 1.0f) };
+	screen_quad.add_buffer(positions, BUFFER_INDEXES::POSITION_BUFFER);
+	screen_quad.add_buffer(tex_coords, BUFFER_INDEXES::TEXTURE_COORDS_0);
+	screen_quad.set_type(GL_TRIANGLE_STRIP);
+	// *********************************
+	screen_quad.add_buffer(positions, BUFFER_INDEXES::POSITION_BUFFER);
+	screen_quad.add_buffer(tex_coords, BUFFER_INDEXES::TEXTURE_COORDS_0);
   // *********************************
 
   // Create plane mesh
@@ -213,9 +215,9 @@ bool render() {
   // !!!!!!!!!!!!!!! FIRST PASS !!!!!!!!!!!!!!!!
   // *********************************
   // Set render target to first_pass
-
+	renderer::set_render_target(first_pass);
   // Clear frame
-
+	renderer::clear();
   // *********************************
 
   // Render meshes
@@ -259,60 +261,61 @@ bool render() {
 
   // *********************************
   // Perform blur twice
-
+  for (int i = 0; i < 2; i++)
+  {
     // Set render target to temp_frames[i]
-
+	  renderer::set_render_target(temp_frames[i]);
     // Clear frame
-
+	  renderer::clear();
     // Bind motion blur effect
-
+	  renderer::bind(blur);
     // MVP is now the identity matrix
-
+	  auto MVP = mat4();
     // Set MVP matrix uniform
-
+	  glUniformMatrix4fv(blur.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
     // Bind frames
-
-
+	  renderer::bind(temp_frames[i].get_frame(), 0);
+	  glUniform1i(blur.get_uniform_location("tex"), 0);
     // Set inverse width
-
+	  glUniform1f(blur.get_uniform_location("inverse_width"), 1.0f / renderer::get_screen_width());
     // Set inverse height
-
+	  glUniform1f(blur.get_uniform_location("inverse_height"), 1.0f / renderer::get_screen_height());
     // Render screen quad
-
+	  renderer::render(screen_quad);
     // Set last pass to this pass
+	  last_pass = temp_frames[i];
 
-
-
+  }
   // !!!!!!!!!!!!!!! SCREEN PASS !!!!!!!!!!!!!!!!
 
   // Set render target back to the screen
-
+  renderer::set_render_target();
   //Bid Dof effect
-
+  renderer::bind(dof);
   // Set MVP matrix uniform, identity
-
-
+  auto MVP = mat4();
+  glUniformMatrix4fv(dof.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(MVP));
   // Bind texture from last pass, 0
-
+  renderer::bind(last_pass.get_frame(), 0);
   // Set the uniform, 0
-
+  glUniform1i(dof.get_uniform_location("tex"), 0);
   // Sharp texture is taken from first pass
   // bind first pass, 1
-
+  renderer::bind(first_pass.get_frame(), 1);
   //set sharp tex uniform, 1
-
+  glUniform1i(dof.get_uniform_location("sharp"), 1);
   // Depth also taken from first pass
   // bind first pass **depth** to  TU 2
-
+  renderer::bind(first_pass.get_depth(), 2);
   //set depth tex uniform, 2
-
+  glUniform1i(dof.get_uniform_location("depth"), 2);
   // Set range and focus values
   // - range distance to chaser (get from camera)
   // - focus 0.3
-
-
+  glUniform1f(dof.get_uniform_location("range"), length(cam.get_position() - cam.get_target_pos()));
+  glUniform1f(dof.get_uniform_location("focus"), 0.3f);
   // Render the screen quad
-
+  renderer::render(screen_quad);
   // *********************************
 
   return true;

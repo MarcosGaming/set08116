@@ -37,19 +37,22 @@ void main() {
 
   // *********************************
   // Vertex 2 is bottom right
-
-
-
+  va = position.xy + vec2(0.5, -0.5) * point_size;
+  gl_Position = P * vec4(va, position.zw);
+  tex_coord = vec2(1.0, 0.0);
+  EmitVertex();
 
   // Vertex 3 is top left
-
-
-
+  va = position.xy + vec2(-0.5, 0.5) * point_size;
+  gl_Position = P * vec4(va, position.zw);
+  tex_coord = vec2(0.0, 1.0);
+  EmitVertex();
 
   // Vertex 4 it top right
-
-
-
+  va = position.xy + vec2(0.5, 0.5) * point_size;
+  gl_Position = P * vec4(va, position.zw);
+  tex_coord = vec2(1.0, 1.0);
+  EmitVertex();
 
   // *********************************
 

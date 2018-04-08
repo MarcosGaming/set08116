@@ -6,6 +6,8 @@ uniform mat4 MVP;
 uniform mat4 M;
 // N transformation matrix
 uniform mat3 N;
+// The light transformation matrix
+uniform mat4 lightMVP;
 // UV SCROLL to simulate movement
 uniform vec2 UV_SCROLL;
 
@@ -26,6 +28,8 @@ layout(location = 1) out vec3 transformed_normal;
 layout(location = 2) out vec2 vertex_tex_coord;
 // Outgoing tex_weight
 layout(location = 3) out vec4 vertex_tex_weight;
+// Outgoing position in light space
+layout (location = 4) out vec4 vertex_light;
 
 void main() {
   // Calculate screen position
@@ -38,4 +42,6 @@ void main() {
   vertex_tex_coord = tex_coord + UV_SCROLL;
   // Pass through tex_weight
   vertex_tex_weight = tex_weight;
+  // Transform position into light space
+  vertex_light = lightMVP * vec4(position, 1.0f);
 }

@@ -34,8 +34,8 @@ void main() {
   for (int i = 0; i < 3; ++i) {
     gl_Position = MVP * (gl_in[i].gl_Position + vec4(offset, 0));
     // *********************************
-
-
+	colour_out = vec4(0.0f,0.0f,1.0f,1.0f);
+	EmitVertex();
     // *********************************
   }
   EndPrimitive();
@@ -43,11 +43,15 @@ void main() {
   // *********************************
   // Emit a copy of the triangle moved by negative offset
   // Offset triangle needs to be blue
-
-
-
-
-
-
+    // Emit a copy of the triangle moved by offset
+  // Offset triangle needs to be green
+  for (int i = 0; i < 3; ++i) {
+    gl_Position = MVP * (gl_in[i].gl_Position - vec4(offset, 0));
+    // *********************************
+	colour_out = vec4(0.0f,1.0f,0.0f,1.0f);
+	EmitVertex();
+    // *********************************
+  }
+  EndPrimitive();
   // *********************************
 }
