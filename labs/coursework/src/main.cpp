@@ -624,6 +624,7 @@ bool load_content()
 	//Skybox effect
 	effects["sky_eff"].add_shader("res/shaders/skybox.vert", GL_VERTEX_SHADER);
 	effects["sky_eff"].add_shader("res/shaders/skybox.frag", GL_FRAGMENT_SHADER);
+
 	effects["sky_eff"].build();
 	//Normal map effect
 	effects["normal_map_eff"].add_shader("res/shaders/shader.vert", GL_VERTEX_SHADER);
